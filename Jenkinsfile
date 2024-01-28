@@ -1,39 +1,40 @@
 pipeline {
-    agent { label "dev-server"}
+    agent any
     
     stages {
         
         stage("code"){
             steps{
-                git url: "https://github.com/LondheShubham153/node-todo-cicd.git", branch: "master"
-                echo 'bhaiyya code clone ho gaya'
+                git url: "https://github.com/bhavishaysikka/node-todo-cicd.git", branch: "master"
+                echo 'Code has been Cloned'
             }
         }
-        stage("build and test"){
+        
+        
+        
+        stage("Build and Test"){
             steps{
-                sh "docker build -t node-app-test-new ."
-                echo 'code build bhi ho gaya'
+                sh "docker build -t node-app ."
+                echo 'Code has been built'
             }
         }
-        stage("scan image"){
+
+        
+        stage("Push to DockerHub"){
             steps{
-                echo 'image scanning ho gayi'
-            }
-        }
-        stage("push"){
-            steps{
-                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
+                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass", usernameVariable:"dockerHubUser")]){
                 sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                sh "docker tag node-app-test-new:latest ${env.dockerHubUser}/node-app-test-new:latest"
+                sh "docker tag node-app:latest ${env.dockerHubUser}/node-app-test-new:latest"
                 sh "docker push ${env.dockerHubUser}/node-app-test-new:latest"
-                echo 'image push ho gaya'
+                echo 'Code pushed'
                 }
             }
         }
-        stage("deploy"){
+        
+        stage("Deploy"){
             steps{
-                sh "docker-compose down && docker-compose up -d"
-                echo 'deployment ho gayi'
+                sh ("docker-compose down && docker-compose up -d")
+                echo 'Code deployed successfully'
             }
         }
     }
